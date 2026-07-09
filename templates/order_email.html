@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Update - Rang Raaz</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+</head>
+<body style="margin:0; padding:0; background-color:#f5f0eb; font-family:'DM Sans', sans-serif;">
+
+<table width="100%" cellpadding="0" cellspacing="0" style="background-color:#f5f0eb; padding:30px 0;">
+  <tr>
+    <td align="center">
+      <table width="600" cellpadding="0" cellspacing="0" style="max-width:600px; width:100%;">
+
+        <!-- ========== HEADER ========== -->
+        <tr>
+          <td style="background:linear-gradient(135deg,#7B52AB 0%,#4a2c7a 100%); padding:40px 40px 30px; text-align:center; border-radius:16px 16px 0 0;">
+            <p style="margin:0 0 6px; font-size:11px; letter-spacing:4px; color:rgba(255,255,255,0.6); text-transform:uppercase;">
+              {% if new_status == "SHIPPED" %}
+                ✦ Order Shipped ✦
+              {% elif new_status == "DELIVERED" %}
+                ✦ Order Delivered ✦
+              {% elif new_status == "CANCELLED" %}
+                ✦ Order Cancelled ✦
+              {% elif new_status == "PROCESSING" %}
+                ✦ Order Processing ✦
+              {% else %}
+                ✦ Order Confirmed ✦
+              {% endif %}
+            </p>
+            <h1 style="margin:0; font-family:'Playfair Display',serif; font-size:32px; color:#ffffff; font-weight:700; letter-spacing:1px;">Rang Raaz</h1>
+            <p style="margin:10px 0 0; font-size:13px; color:rgba(255,255,255,0.75);">
+              {% if new_status == "SHIPPED" %}
+                Your order is on its way! 🚚
+              {% elif new_status == "DELIVERED" %}
+                Your order has been delivered! 🎉
+              {% elif new_status == "CANCELLED" %}
+                Your order has been cancelled.
+              {% elif new_status == "PROCESSING" %}
+                We are preparing your order!
+              {% else %}
+                Your order is confirmed!
+              {% endif %}
+            </p>
+          </td>
+        </tr>
+
+        <!-- ========== ORDER TRACKER ========== -->
+        {% if new_status != "CANCELLED" %}
+        <tr>
+          <td style="background:#ffffff; padding:28px 30px 20px;">
+            <table width="100%" cellpadding="0" cellspacing="0">
+              <tr>
+
+                <!-- Step 1: Placed -->
+                <td align="center" style="width:22%;">
+                  <table cellpadding="0" cellspacing="0" align="center">
+                    <tr>
+                      <td align="center">
+                        <div style="width:40px; height:40px; border-radius:50%; text-align:center; line-height:40px;
+                          {% if tracker_step >= 0 %}background:#7B52AB;{% else %}background:#e8ddf5;{% endif %}">
+                          <span style="font-size:16px; color:{% if tracker_step >= 0 %}white{% else %}#999{% endif %}; line-height:40px; display:block;">✓</span>
+                        </div>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td align="center">
+                        <p style="margin:7px 0 0; font-size:10px; text-transform:uppercase; letter-spacing:0.5px;
+                          {% if tracker_step >= 0 %}color:#7B52AB; font-weight:700;{% else %}color:#bbb; font-weight:400;{% endif %}">Placed</p>
+                      </td>
+                    </tr>
+                  </table>
+                </td>
+
+                <!-- Line 1→2 -->
+                <td style="vertical-align:top; padding-top:12px;">
+                  <div style="height:2px; {% if tracker_step >= 1 %}background:#7B52AB;{% else %}background:#e8ddf5;{% endif %}"></div>
+                </td>
+
+                <!-- Step 2: Processing -->
+                <td align="center" style="width:22%;">
+                  <table cellpadding="0" cellspacing="0" align="center">
+                    <tr>
+                      <td align="center">
+                        <div style="width:40px; height:40px; border-radius:50%; text-align:center; line-height:40px;
+                          {% if tracker_step >= 1 %}background:#7B52AB;{% else %}background:#e8ddf5;{% endif %}">
+                          <span style="font-size:16px; line-height:40px; display:block;">🔄</span>
+                        </div>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td align="center">
+                        <p style="margin:7px 0 0; font-size:10px; text-transform:uppercase; letter-spacing:0.5px;
+                          {% if tracker_step >= 1 %}color:#7B52AB; font-weight:700;{% else %}color:#bbb; font-weight:400;{% endif %}">Processing</p>
+                      </td>
+                    </tr>
+                  </table>
+                </td>
+
+                <!-- Line 2→3 -->
+                <td style="vertical-align:top; padding-top:12px;">
+                  <div style="height:2px; {% if tracker_step >= 2 %}background:#7B52AB;{% else %}background:#e8ddf5;{% endif %}"></div>
+                </td>
+
+                <!-- Step 3: Shipped -->
+                <td align="center" style="width:22%;">
+                  <table cellpadding="0" cellspacing="0" align="center">
+                    <tr>
+                      <td align="center">
+                        <div style="width:40px; height:40px; border-radius:50%; text-align:center; line-height:40px;
+                          {% if tracker_step >= 2 %}background:#7B52AB;{% else %}background:#e8ddf5;{% endif %}">
+                          <span style="font-size:16px; line-height:40px; display:block;">🚚</span>
+                        </div>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td align="center">
+                        <p style="margin:7px 0 0; font-size:10px; text-transform:uppercase; letter-spacing:0.5px;
+                          {% if tracker_step >= 2 %}color:#7B52AB; font-weight:700;{% else %}color:#bbb; font-weight:400;{% endif %}">Shipped</p>
+                      </td>
+                    </tr>
+                  </table>
+                </td>
+
+                <!-- Line 3→4 -->
+                <td style="vertical-align:top; padding-top:12px;">
+                  <div style="height:2px; {% if tracker_step >= 3 %}background:#7B52AB;{% else %}background:#e8ddf5;{% endif %}"></div>
+                </td>
+
+                <!-- Step 4: Delivered -->
+                <td align="center" style="width:22%;">
+                  <table cellpadding="0" cellspacing="0" align="center">
+                    <tr>
+                      <td align="center">
+                        <div style="width:40px; height:40px; border-radius:50%; text-align:center; line-height:40px;
+                          {% if tracker_step >= 3 %}background:#7B52AB;{% else %}background:#e8ddf5;{% endif %}">
+                          <span style="font-size:16px; line-height:40px; display:block;">🏠</span>
+                        </div>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td align="center">
+                        <p style="margin:7px 0 0; font-size:10px; text-transform:uppercase; letter-spacing:0.5px;
+                          {% if tracker_step >= 3 %}color:#7B52AB; font-weight:700;{% else %}color:#bbb; font-weight:400;{% endif %}">Delivered</p>
+                      </td>
+                    </tr>
+                  </table>
+                </td>
+
+              </tr>
+            </table>
+          </td>
+        </tr>
+        {% endif %}
+
+        <!-- ========== GREETING ========== -->
+        <tr>
+          <td style="background:#ffffff; padding:10px 40px 24px;">
+            <p style="margin:0 0 6px; font-size:15px; color:#333;">Hi <strong>{{ user_name }}</strong>,</p>
+            <p style="margin:0; font-size:14px; color:#666; line-height:1.6;">
+              {% if new_status == "SHIPPED" %}
+                Great news! Your order is on its way. You will receive it soon.
+              {% elif new_status == "DELIVERED" %}
+                Your order has been delivered. We hope you love it! 💜
+              {% elif new_status == "CANCELLED" %}
+                Sorry, your order has been cancelled. Contact us if you have any questions.
+              {% elif new_status == "PROCESSING" %}
+                We are preparing your order. We will notify you once it ships.
+              {% else %}
+                Thanks for your order! It is on-hold until we confirm that payment has been received.
+              {% endif %}
+            </p>
+
+            <!-- Order ID Box -->
+            <div style="margin-top:18px; background:#f9f5ff; border-left:3px solid #7B52AB; border-radius:0 8px 8px 0; padding:12px 16px;">
+              <p style="margin:0; font-family:'Playfair Display',serif; font-size:16px; color:#7B52AB; font-weight:600;">
+                [Order #{{ order_id }}] &nbsp;&middot;&nbsp; {{ date }}
+              </p>
+            </div>
+
+            <!-- VIEW ORDER BUTTON -->
+            <div style="text-align:center; margin-top:22px;">
+              <a href="http://localhost:5173/orders/{{ order_id }}"
+                 style="display:inline-block; background:linear-gradient(135deg,#7B52AB,#4a2c7a); color:white;
+                        text-decoration:none; padding:13px 36px; border-radius:8px;
+                        font-size:14px; font-weight:600; letter-spacing:0.5px;">
+                View Your Order &#8594;
+              </a>
+            </div>
+          </td>
+        </tr>
+
+        <!-- DIVIDER -->
+        <tr><td style="background:#ffffff; padding:0 40px;"><div style="height:1px; background:#f0eaf8;"></div></td></tr>
+
+        <!-- ========== PRODUCTS TABLE ========== -->
+        <tr>
+          <td style="background:#ffffff; padding:20px 40px;">
+            <table width="100%" cellpadding="0" cellspacing="0">
+              <tr>
+                <th style="text-align:left; padding:0 0 12px; font-size:11px; letter-spacing:2px; color:#999; text-transform:uppercase; font-weight:600; border-bottom:2px solid #f0eaf8;">Product</th>
+                <th style="text-align:right; padding:0 0 12px; font-size:11px; letter-spacing:2px; color:#999; text-transform:uppercase; font-weight:600; border-bottom:2px solid #f0eaf8;">Price</th>
+              </tr>
+
+              {% for item in items %}
+              <tr>
+                <td style="padding:14px 0; border-bottom:1px solid #f9f5ff;">
+                  <table cellpadding="0" cellspacing="0">
+                    <tr>
+                      <!-- Product Info only -->
+                      <td style="vertical-align:middle;">
+                        <p style="margin:0 0 3px; font-size:14px; font-weight:500; color:#1a1a1a;">{{ item.name|default:"Product" }}</p>
+                        <p style="margin:0; font-size:12px; color:#999;">Qty: {{ item.quantity|default:1 }}</p>
+                      </td>
+                    </tr>
+                  </table>
+                </td>
+                <td style="text-align:right; padding:14px 0; border-bottom:1px solid #f9f5ff; vertical-align:middle;">
+                  <span style="font-size:14px; font-weight:500; color:#1a1a1a;">${{ item.price|default:0 }}</span>
+                </td>
+              </tr>
+              {% endfor %}
+
+              <!-- Total Row -->
+              <tr>
+                <td style="padding-top:16px;">
+                  <p style="margin:0; font-size:13px; color:#888;">Payment Method: <strong style="color:#555;">{{ payment_method }}</strong></p>
+                </td>
+                <td style="text-align:right; padding-top:16px;">
+                  <p style="margin:0 0 2px; font-size:11px; color:#999; text-transform:uppercase; letter-spacing:1px;">Total</p>
+                  <p style="margin:0; font-size:20px; font-family:'Playfair Display',serif; font-weight:700; color:#7B52AB;">${{ total_amount }}</p>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+
+        <!-- DIVIDER -->
+        <tr><td style="background:#ffffff; padding:0 40px;"><div style="height:1px; background:#f0eaf8;"></div></td></tr>
+
+        <!-- ========== BILLING ADDRESS ========== -->
+        <tr>
+          <td style="background:#ffffff; padding:20px 40px 30px;">
+            <p style="margin:0 0 12px; font-family:'Playfair Display',serif; font-size:16px; color:#7B52AB; font-weight:600;">Billing Address</p>
+            <div style="background:#faf8ff; border:1px solid #ede6f8; border-radius:10px; padding:16px 20px;">
+              <p style="margin:0; font-size:14px; color:#444; line-height:1.8;">
+                <strong style="color:#1a1a1a;">{{ billing_address.name }}</strong><br>
+                {{ billing_address.street }}<br>
+                {{ billing_address.city }}<br>
+                &#128222; {{ billing_address.phone }}
+              </p>
+            </div>
+          </td>
+        </tr>
+
+        <!-- ========== UPDATES NOTICE ========== -->
+        <tr>
+          <td style="background:#f9f5ff; padding:20px 40px; border-top:1px solid #ede6f8;">
+            <table width="100%" cellpadding="0" cellspacing="0">
+              <tr>
+                <td width="44" style="vertical-align:middle; font-size:28px;">📬</td>
+                <td style="vertical-align:middle; padding-left:12px;">
+                  <p style="margin:0 0 2px; font-size:13px; font-weight:600; color:#4a2c7a;">Get Order Updates</p>
+                  <p style="margin:0; font-size:12px; color:#888;">We will email you at every step — processing, shipping, and delivery.</p>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+
+        <!-- ========== FOOTER ========== -->
+        <tr>
+          <td style="background:linear-gradient(135deg,#4a2c7a 0%,#7B52AB 100%); padding:28px 40px; text-align:center; border-radius:0 0 16px 16px;">
+            <p style="margin:0 0 6px; font-family:'Playfair Display',serif; font-size:18px; color:white; font-weight:600;">Rang Raaz</p>
+            <p style="margin:0 0 12px; font-size:12px; color:rgba(255,255,255,0.6);">124 Buchanan Ave, Galloway, NJ 08205</p>
+            <p style="margin:0; font-size:11px; color:rgba(255,255,255,0.4);">&#169; 2026 Rang Raaz &middot; All rights reserved</p>
+          </td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+
+</body>
+</html>

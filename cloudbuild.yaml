@@ -1,0 +1,36 @@
+steps:
+  # Step 1: Checkout the code from GitHub
+  - name: 'gcr.io/cloud-builders/git'
+    args: ['clone', 'https://github.com/Misbahhassan08/rangraaz_server']
+  
+  # Step 2: Change directory to the repository
+  - name: 'gcr.io/cloud-builders/docker'
+    dir: 'rangraaz_server'
+    args: ['build', '-t', 'gcr.io/vertex-model-training/rangraaz_server', '.']
+
+  
+  # Step 3: Push the Docker image to Google Container Registry
+  - name: 'gcr.io/cloud-builders/docker'
+    dir: 'rangraaz_server'
+    args: ['push', 'gcr.io/vertex-model-training/rangraaz_server']
+  
+  # Step 4: Deploy the Docker image to Google Cloud Run
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    args:
+      - 'gcloud'
+      - 'run'
+      - 'deploy'
+      - 'rangraazserver'
+      - '--image'
+      - 'gcr.io/vertex-model-training/rangraaz_server'
+      - '--platform'
+      - 'managed'
+      - '--region'
+      - 'us-central1'
+      - '--allow-unauthenticated'
+      - '--quiet'
+      
+
+timeout: '1200s'  # Adjust timeout as necessary
+options:
+  logging: CLOUD_LOGGING_ONLY

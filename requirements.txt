@@ -1,0 +1,12 @@
+Django
+django-cloudinary-storage
+django-cors-headers
+djangorestframework
+djangorestframework_simplejwt
+cloudinary
+google-auth
+python-dotenv
+pymysql
+mysqlclient
+gunicorn
+requests
