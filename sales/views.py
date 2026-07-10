@@ -18,14 +18,9 @@ from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
 from django.utils.html import strip_tags
 from django.utils.timezone import now
-
-
-
-
-
 from django.core.mail import send_mail
 from django.conf import settings
-
+from products.models import Products
 
 @method_decorator(csrf_exempt, name='dispatch')
 class OrderCreateView(View):
@@ -52,6 +47,20 @@ class OrderCreateView(View):
                 status=data.get("status", "PENDING"),
                 products=data.get("products", [])
             )
+
+            # --- REDUCE STOCK ON ORDER CREATION ---
+            for item in data.get("products", []):
+                product_id = item.get("id") or item.get("product_id")
+                qty = item.get("quantity", 0)
+
+                if product_id and qty:
+                    try:
+                        product = Products.objects.get(id=product_id)
+                        product.quantity = max(0, product.quantity - qty)
+                        product.save()
+                    except Products.DoesNotExist:
+                        print(f"⚠️ Product {product_id} not found while reducing stock")
+            # --- STOCK REDUCE END ---
 
             # --- EMAIL LOGIC START ---
             shipping_info = data.get("shipping_address", {})
@@ -123,7 +132,6 @@ class OrderCreateView(View):
             return JsonResponse({"success": False, "error": str(e)}, status=400)
 
 
-
 @csrf_exempt
 def get_all_orders(request):
     """
@@ -170,7 +178,6 @@ def get_order_by_id(request, pk):
     return JsonResponse(data, safe=False)
 
 
-
 @method_decorator(csrf_exempt, name='dispatch')
 class OrderStatusUpdateView(View):
     def patch(self, request, order_id, *args, **kwargs):
@@ -182,8 +189,24 @@ class OrderStatusUpdateView(View):
                 return JsonResponse({"success": False, "error": "Invalid status"}, status=400)
 
             order = Order.objects.get(order_id=order_id)
+            old_status = order.status  # remember status BEFORE changing it
             order.status = new_status
             order.save()
+
+            # --- RESTORE STOCK IF ORDER IS CANCELLED ---
+            if new_status == "CANCELLED" and old_status != "CANCELLED":
+                for item in order.products:
+                    product_id = item.get("id") or item.get("product_id")
+                    qty = item.get("quantity", 0)
+
+                    if product_id and qty:
+                        try:
+                            product = Products.objects.get(id=product_id)
+                            product.quantity += qty
+                            product.save()
+                        except Products.DoesNotExist:
+                            print(f"⚠️ Product {product_id} not found while restoring stock")
+            # --- STOCK RESTORE END ---
 
             # --- STATUS UPDATE EMAIL ---
             shipping_info = order.shipping_address if isinstance(order.shipping_address, dict) else {}
@@ -255,8 +278,6 @@ class OrderStatusUpdateView(View):
             return JsonResponse({"success": False, "error": "Order not found"}, status=404)
         except Exception as e:
             return JsonResponse({"success": False, "error": str(e)}, status=400)
-
-
 
 def get_weekly_stats(request):
     try:

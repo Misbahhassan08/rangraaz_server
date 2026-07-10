@@ -1,7 +1,7 @@
 from django.db import models
 from rangraaz.models import Customer
 
-\
+
 
 class Order(models.Model):
     PAYMENT_METHOD_CHOICES = [
