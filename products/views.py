@@ -255,9 +255,7 @@ def create_payment(request):
 @require_http_methods(["POST"])
 def create_product(request):
     try:
-        sku = request.POST.get('sku', '').strip()
-        if len(sku) < 5:
-            return JsonResponse({'error': 'SKU must be at least 5 characters long.'}, status=400)
+        
 
         category_id = request.POST.get('category_id') or None
         subcategory_id = request.POST.get('subcategory_id') or None
@@ -272,7 +270,7 @@ def create_product(request):
             subcategory_id=subcategory_id,
             sub_subcategory_id=sub_subcategory_id,
             quantity=0,  
-            sku=sku,
+           
             vendor=request.POST.get('vendor'),
             is_sale_on=request.POST.get('is_sale_on') == "true",
             discount_percentage=int(request.POST.get('discount_percentage') or 0),
@@ -289,7 +287,8 @@ def create_product(request):
         for item in size_stocks:
             if item.get('size') and item.get('quantity') is not None:
                 qty = int(item['quantity'])
-                SizeStock.objects.create(product=product, size=item['size'], quantity=qty)
+                SizeStock.objects.create(product=product, size=item['size'], quantity=qty,
+                                          sku=(item.get('sku') or '').strip() or None )
                 total_qty += qty
 
         # Total quantity update
@@ -300,6 +299,15 @@ def create_product(request):
 
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=400)   
+
+
+
+
+
+
+
+
+
     
     
 @csrf_exempt
@@ -319,7 +327,7 @@ def all_data(request):
             ]
 
             size_stocks = [
-                {'size': ss.size, 'quantity': ss.quantity}
+                {'size': ss.size, 'quantity': ss.quantity, 'sku': ss.sku}
                 for ss in product.size_stocks.all()
             ]
 
@@ -337,8 +345,7 @@ def all_data(request):
                 'quantity': product.quantity,
                 'image_url': img_url,
                 'images': all_images,
-                'size_stocks': size_stocks,  # ← naya
-                'sku': product.sku,
+                'size_stocks': size_stocks,  
                 'vendor': product.vendor,
                 'product_type': product.product_type,
             }
@@ -374,7 +381,6 @@ def item_update(request, pk):
     if 'product_name' in request.POST: item.product_name = request.POST['product_name']
     if 'product_type' in request.POST: item.product_type = request.POST['product_type']
     if 'vendor' in request.POST: item.vendor = request.POST['vendor']
-    if 'sku' in request.POST: item.sku = request.POST['sku']
     if 'original_price' in request.POST: item.original_price = float(request.POST['original_price'])
     if 'discount_percentage' in request.POST: item.discount_percentage = int(request.POST['discount_percentage'])
     if 'is_sale_on' in request.POST: item.is_sale_on = request.POST['is_sale_on'] == 'true'
@@ -396,7 +402,8 @@ def item_update(request, pk):
         for s in size_stocks:
             if s.get('size') and s.get('quantity') is not None:
                 qty = int(s['quantity'])
-                SizeStock.objects.create(product=item, size=s['size'], quantity=qty)
+                SizeStock.objects.create(product=item, size=s['size'], quantity=qty,
+                                         sku=(s.get('sku') or '').strip() or None )
                 total_qty += qty
         item.quantity = total_qty
 
@@ -407,6 +414,17 @@ def item_update(request, pk):
         ProductImage.objects.create(product=item, image=img, order=item.images.count() + index)
 
     return JsonResponse({'message': 'Product updated successfully', 'sell_price': str(item.sell_price)})
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -745,27 +763,26 @@ def total_products_count(request):
             'success': False, 
             'error': str(e)
         }, status=500)
-        
 @csrf_exempt
 @require_http_methods(["GET"])
 def get_product_by_sku(request, sku):
     try:
-        product = Products.objects.prefetch_related('images').get(sku=sku)
+        size_stock = SizeStock.objects.select_related('product').prefetch_related('product__images').get(sku=sku)
+        product = size_stock.product
         first_image = product.images.first()
         img_url = first_image.image.url if first_image else ""
         data = {
             'id': product.id,
             'product_name': product.product_name,
-            'sku': product.sku,
-            'quantity': product.quantity,
+            'sku': size_stock.sku,
+            'size': size_stock.size,
+            'quantity': size_stock.quantity,
             'sell_price': product.sell_price,
             'image_url': img_url,
-         
         }
         return JsonResponse({'success': True, 'product': data}, status=200)
-    except Products.DoesNotExist:
+    except SizeStock.DoesNotExist:
         return JsonResponse({'success': False, 'message': 'Product not found'}, status=404)
-
 @csrf_exempt
 @require_http_methods(["PUT"])
 def update_stock(request, pk):

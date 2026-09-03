@@ -1,9 +1,10 @@
 from django.urls import path
-from .views import signin,signup,getallusers,update_role,delete_user,google_login
+from .views import signin,signup,getallusers,update_role,delete_user,google_login,add_admin
 
 urlpatterns = [
     path('signup/',signup, name='signup'),
     path('signin/', signin, name='signin'),
+    path('add-admin/',add_admin, name='add_admin'),
     path('getallusers/', getallusers,name='all_data'),
     path('update-role/<int:pk>/', update_role, name='update_role'), 
     path('delete-user/<int:pk>/', delete_user, name='delete_user'),

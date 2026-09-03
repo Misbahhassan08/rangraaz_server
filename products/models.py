@@ -1,6 +1,5 @@
 from django.db import models
 from cloudinary.models import CloudinaryField
-from django.core.validators import MinLengthValidator
 
 class Products(models.Model):
     product_name = models.CharField(max_length=255)
@@ -34,13 +33,8 @@ class Products(models.Model):
     related_name='products'
     )
     
-    size = models.CharField(max_length=50, blank=True, null=True)
     vendor = models.CharField(max_length=255)
-    sku = models.CharField(
-        max_length=100,
-        unique=True,
-        validators=[MinLengthValidator(5, message="SKU must be at least 5 characters long.")]
-    )
+    
 
     def save(self, *args, **kwargs):
         orig_price = float(self.original_price or 0)
@@ -161,6 +155,7 @@ class SizeStock(models.Model):
     )
     size = models.CharField(max_length=50)
     quantity = models.PositiveIntegerField(default=0)
+    sku = models.CharField(max_length=100, unique=True, blank=True, null=True)  # ← NEW
 
     class Meta:
         unique_together = ('product', 'size')

@@ -73,6 +73,49 @@ def signin(request):
         except json.JSONDecodeError:
             return JsonResponse({'status': 'error', 'message': 'Invalid JSON'}, status=400)
 
+@csrf_exempt
+def add_admin(request):
+    if request.method != 'POST':
+        return JsonResponse({'status': 'error', 'message': 'Method not allowed'}, status=405)
+    try:
+        data = json.loads(request.body)
+
+      
+
+        name = data.get('name')
+        phone = data.get('phone')
+        password = data.get('password')
+        address = data.get('address', '')
+
+        if not name or not phone or not password:
+            return JsonResponse({'status': 'error', 'message': 'Name, phone and password are required'}, status=400)
+
+        if Customer.objects.filter(phone=phone).exists():
+            return JsonResponse({'status': 'error', 'message': 'Phone already in use'}, status=400)
+
+        user = Customer.objects.create(
+            name=name,
+            phone=phone,
+            password=password,  
+            address=address,
+            role='admin',         
+        )
+
+        return JsonResponse({
+            'status': 'success',
+            'message': 'Admin created successfully',
+            'user': {
+                'id': user.id,
+                'name': user.name,
+                'phone': user.phone,
+                'address': user.address,
+                'role': user.role,
+            }
+        })
+    except json.JSONDecodeError:
+        return JsonResponse({'status': 'error', 'message': 'Invalid JSON'}, status=400)
+    except Exception as e:
+        return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
 
 @csrf_exempt
 def google_login(request):

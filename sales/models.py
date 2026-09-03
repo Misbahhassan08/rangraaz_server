@@ -21,8 +21,8 @@ class Order(models.Model):
     order_id = models.AutoField(primary_key=True)
     user = models.ForeignKey(
         Customer,
-        on_delete=models.SET_NULL,  #  was CASCADE — guest has no user so can't cascade
-        null=True,                   #  allows guest orders (no user)
+        on_delete=models.SET_NULL,  
+        null=True,                   
         blank=True,
         related_name="orders"
     )

@@ -1,6 +1,8 @@
 from django.db import models
 class Customer(models.Model):
     ROLE_CHOICES = [
+        
+        ('superadmin', 'Superadmin'),
         ('admin', 'Admin'),
         ('customer', 'Customer'),
     ]
